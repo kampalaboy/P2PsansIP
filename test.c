@@ -56,8 +56,8 @@ void * server_peer(void *arg){
         server_arg.serving = &serving;
         server_arg.known_hosts = arg;
 
-        struct ThreadJob server_job = threadjob_constructor(server_loop, &server_arg);
-        threadpool.add_work(&threadpool,server_job);
+        struct ThreadJob threadjob = threadjob_constructor(server_loop, &server_arg);
+        threadpool.add_work(&threadpool,threadjob);
     }
     return NULL;
 }
