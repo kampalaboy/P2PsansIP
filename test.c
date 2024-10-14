@@ -1,9 +1,7 @@
-#include "network/server.h"
 #include "network/server.c"
-#include "network/client.h"
 #include "network/client.c"
-#include "systems/thread.h"
-#include "datastructures/linkedlist.h"
+#include "systems/thread.c"
+#include "datastructures/queue.c"
 #include "datastructures/linkedlist.c"
 #include "datastructures/node.c"
 
@@ -11,6 +9,36 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+
+struct ServerLoopArg{
+    
+    int client;
+    struct Server *serving;
+    struct LinkedList *known_hosts;
+};
+
+void * server_loop(void *arg){
+
+    struct ServerLoopArg *server_arg = arg;
+    char request[255];
+    memset(request, 0, 255);
+    read(server_arg->client, request, 255);
+    char *client_add = inet_ntoa(server_arg->serving->address.sin_addr);
+    printf("\t\t %s says: %s\n", client_add, request);
+        close(server_arg->client);
+
+        short found = 0;
+        for (int i=0; i<server_arg->known_hosts->length&&!found; i++){
+            if(strcmp(client_add, server_arg->known_hosts->retrieve(server_arg->known_hosts, i))==0){
+                found = 1;
+            }
+        }
+        if(!found){
+            server_arg->known_hosts->insert (server_arg->known_hosts, server_arg->known_hosts->length, client_add, sizeof(client_add));
+        }
+
+    return NULL;
+}
 
 
 void * server_peer(void *arg){
@@ -20,25 +48,18 @@ void * server_peer(void *arg){
     printf("Starting Peer Server...\n");
     struct Server serving = server_constructor(AF_INET, SOCK_STREAM, 0, INADDR_ANY, 1248, 20 );
     struct sockaddr *address = (struct sockaddr *)&serving.address; 
+    struct ThreadPool thread_pool = threadpool_constructor(50);
     socklen_t add_len = (socklen_t)sizeof(serving.address);
-    while (1){
-        int client = accept(serving.socket, address, &add_len);
-        char request[255];
-        memset(request, 8, 255);
-        read(client, request, 255);
-        char *client_add = inet_ntoa(serving.address.sin_addr);
-        printf("\t\t %s says: %s\n", client_add, request);
-        close(client);
+ 
+    while(1){
+        
+        struct ServerLoopArg server_arg;
+        server_arg.client= accept(serving.socket, address, &add_len);
+        server_arg.serving = &serving;
+        server_arg.known_hosts = arg;
 
-        short found = 0;
-        for (int i=0; i<known_hosts->length&&!found; i++){
-            if(strcmp(client_add, known_hosts->retrieve(known_hosts, i))==0){
-                found = 1;
-            }
-        }
-        if(!found){
-            known_hosts->insert (known_hosts, known_hosts->length, client_add, sizeof(client_add));
-        }
+        struct ThreadJob server_job = threadjob_constructor(server_loop, &server_arg);
+        thread_pool.add_work(&thread_pool,server_job);
     }
     return NULL;
 }

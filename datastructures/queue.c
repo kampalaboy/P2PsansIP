@@ -15,10 +15,13 @@ struct Queue queue_constructor(){
 
      return queue;
 }
-
+void queue_destructor(struct Queue *queue)
+{
+    linked_list_destructor(&queue->list);
+}
 void push(struct Queue *queue, void *data, unsigned long size){
 
-    queue->list.insert(&queue->list, &queue->list.length, &data, size);
+    queue->list.insert(&queue->list, queue->list.length, &data, size);
 }
 
 void * peek(struct Queue *queue){

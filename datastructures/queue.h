@@ -12,5 +12,5 @@ struct Queue{
 };
 
     struct Queue queue_constructor(void);
-    struct Queue queue_destructor(struct Queue *queue);
+    void queue_destructor(struct Queue *queue);
 #endif

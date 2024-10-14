@@ -1,8 +1,9 @@
 #ifndef Thread_h
 #define Thread_h
 
-#include "../datastructures/queue.h"
+
 #include <pthread.h>
+#include "../datastructures/queue.h"
 
 struct ThreadJob{
     void * (*job)(void *arg);
