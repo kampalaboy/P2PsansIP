@@ -25,16 +25,16 @@ void * server_loop(void *arg){
     read(server_arg->client, request, 255);
     char *client_add = inet_ntoa(server_arg->serving->address.sin_addr);
     printf("\t\t %s says: %s\n", client_add, request);
-        close(server_arg->client);
-
-        short found = 0;
-        for (int i=0; i<server_arg->known_hosts->length&&!found; i++){
-            if(strcmp(client_add, server_arg->known_hosts->retrieve(server_arg->known_hosts, i))==0){
+    close(server_arg->client);
+    
+    short found = 0;
+    for (int i=0; i<server_arg->known_hosts->length&&!found; i++){
+        if(strcmp(client_add, server_arg->known_hosts->retrieve(server_arg->known_hosts, i))==0){
                 found = 1;
             }
         }
         if(!found){
-            server_arg->known_hosts->insert (server_arg->known_hosts, server_arg->known_hosts->length, client_add, sizeof(client_add));
+            server_arg->known_hosts->insert(server_arg->known_hosts, server_arg->known_hosts->length, client_add, sizeof(client_add));
         }
 
     return NULL;
@@ -43,12 +43,10 @@ void * server_loop(void *arg){
 
 void * server_peer(void *arg){
 
-    struct LinkedList *known_hosts = arg;
-
     printf("Starting Peer Server...\n");
     struct Server serving = server_constructor(AF_INET, SOCK_STREAM, 0, INADDR_ANY, 1248, 20 );
     struct sockaddr *address = (struct sockaddr *)&serving.address; 
-    struct ThreadPool thread_pool = threadpool_constructor(50);
+    struct ThreadPool threadpool = threadpool_constructor(50);
     socklen_t add_len = (socklen_t)sizeof(serving.address);
  
     while(1){
@@ -59,7 +57,7 @@ void * server_peer(void *arg){
         server_arg.known_hosts = arg;
 
         struct ThreadJob server_job = threadjob_constructor(server_loop, &server_arg);
-        thread_pool.add_work(&thread_pool,server_job);
+        threadpool.add_work(&threadpool,server_job);
     }
     return NULL;
 }
@@ -67,8 +65,7 @@ void * server_peer(void *arg){
 void client_peer(char *request, struct LinkedList *known_hosts){
 
     struct Client client = client_constructor(AF_INET, SOCK_STREAM, 0, INADDR_ANY, 1248);
-    for (int i=0; i<known_hosts->length; i++){
-        
+    for (int i=0; i<known_hosts->length; i++){       
         client.request(&client, known_hosts->retrieve(known_hosts, i), request);
     }
 }

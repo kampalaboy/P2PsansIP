@@ -25,6 +25,6 @@ struct ThreadPool{
 struct ThreadJob threadjob_constructor(void * (*job)(void *arg), void *arg);
 struct ThreadPool threadpool_constructor(int num_threads);
 
-struct ThreadPool threadpool_destructor(struct ThreadPool *threadpool);
+void threadpool_destructor(struct ThreadPool *threadpool);
 
 #endif 

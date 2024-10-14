@@ -25,7 +25,7 @@ struct ThreadJob threadjob_constructor(void * (*job)(void *arg), void *arg){
     return threadjob;
 }
 
-struct ThreadPool threadpool_destructor(struct ThreadPool *threadpool){
+void threadpool_destructor(struct ThreadPool *threadpool){
 
     threadpool->active = 0;
     for (int i=0; i<threadpool->num_threads; i++){
@@ -39,8 +39,6 @@ struct ThreadPool threadpool_destructor(struct ThreadPool *threadpool){
     queue_destructor(&threadpool->work);
 }
 
-
-
 void * threadjob(void *arg){
 
     struct ThreadPool *threadpool = (struct ThreadPool *)arg;
@@ -48,7 +46,7 @@ void * threadjob(void *arg){
 
         pthread_mutex_lock(&threadpool->lock);
         pthread_cond_wait(&threadpool->signal, &threadpool->lock);
-        pthread_mutex_unlock(&threadpool->lock);
+
         struct ThreadJob threadjob = *(struct ThreadJob *)threadpool->work.peek(&threadpool->work);
         threadpool->work.pop(&threadpool->work);
         pthread_mutex_unlock(&threadpool->lock);
