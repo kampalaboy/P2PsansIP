@@ -36,12 +36,12 @@ void * server_loop(void *arg){
         if(!found){
             server_arg->known_hosts->insert(server_arg->known_hosts, server_arg->known_hosts->length, client_add, sizeof(client_add));
         }
-
     return NULL;
 }
 
-
 void * server_peer(void *arg){
+
+    //struct LinkedList *known_hosts = arg;
 
     printf("Starting Peer Server...\n");
     struct Server serving = server_constructor(AF_INET, SOCK_STREAM, 0, INADDR_ANY, 1248, 20 );

@@ -5,7 +5,7 @@
 #include <string.h>
 #include <unistd.h>
 
-char * request(struct Client *client, char *server_ip, void *request);
+char * request(struct Client *client, char *server_ip, char *request);
 
 struct Client client_constructor(int domain, int service, int protocol, u_long interface, int port){
 
@@ -22,7 +22,7 @@ struct Client client_constructor(int domain, int service, int protocol, u_long i
     return client;
 }
 
-char * request(struct Client *client, char *server_ip, void *request){
+char * request(struct Client *client, char *server_ip, char *request){
 
     struct sockaddr_in server_add;
 

@@ -14,7 +14,7 @@ struct  Client{
     u_long interface;
     int port;
 
-    char * (*request)(struct Client *client, char *server_ip, void *request);
+    char * (*request)(struct Client *client, char *server_ip, char *request);
 };
 
 struct Client client_constructor(int domaian, int service, int protocol, u_long interface,
